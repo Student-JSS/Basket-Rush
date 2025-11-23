@@ -12,7 +12,7 @@ import {
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: " ",
+    name: "",
     email: "",
     password: "",
     remember: true,
@@ -182,9 +182,9 @@ const Signup = () => {
         </form>
 
         <p className={signupStyles.signinText}>
-          Already have ana Account? {' '}
-          <Link to='/login' className={signupStyles.signinLink}>
-          Sign In
+          Already have an Account?{" "}
+          <Link to="/login" className={signupStyles.signinLink}>
+            Sign In
           </Link>
         </p>
       </div>
