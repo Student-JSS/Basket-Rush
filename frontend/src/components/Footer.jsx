@@ -95,7 +95,7 @@ const Footer = () => {
               {["Home", "Items", "Contact"].map((item, idx) => (
                 <li key={idx}>
                   <a
-                    href={`/${item.toLowerCase()}`}
+                    href={item === "Home" ? "/" : `/${item.toLowerCase()}`}
                     className={footerStyles.linkItem}
                   >
                     <span className={footerStyles.linkBullet}></span>
@@ -191,16 +191,18 @@ const Footer = () => {
             <div className={footerStyles.hexagonContainer}>
               <div className={footerStyles.hexagon}></div>
               <div className={footerStyles.hexagonInner}>
-                <div className={footerStyles.hexagonInnerShape}/>
+                <div className={footerStyles.hexagonInnerShape} />
               </div>
             </div>
             <span className={footerStyles.attributionText}>
-                Designed By{' '}
-                <a href=""
+              Designed By{" "}
+              <a
+                href=""
                 target="_blank"
-                className={footerStyles.attributionLink}>
-                    Shivam
-                </a>
+                className={footerStyles.attributionLink}
+              >
+                Shivam
+              </a>
             </span>
           </div>
         </div>
