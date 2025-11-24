@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { navItems } from "../assets/Dummy";
 import logo from "../assets/logo.png";
-import { FaOpencart } from 'react-icons/fa';
-import { useCart } from '../CartContext';
+import { FaOpencart } from "react-icons/fa";
+import { useCart } from "../CartContext";
 
 import {
   FiHome,
@@ -14,27 +14,25 @@ import {
   FiUser,
   FiX,
   FiMenu,
-  FiPackage // Added for My Orders icon
-} from 'react-icons/fi';
-
+  FiPackage // Added for My Orders icon (if used)
+} from "react-icons/fi";
 
 const Navbar = () => {
-  const location = useLocation(false);
+  const location = useLocation();
   const navigate = useNavigate();
-  const {cartCount} = useCart();
+  const { cartCount = 0 } = useCart();
 
   const [scrolled, setScrolled] = useState(false);
-  const [activeTab, setActiveTab] = useState(location.pathname);
+  const [activeTab, setActiveTab] = useState(location?.pathname || "/");
   const [isOpen, setIsOpen] = useState(false);
   const [cartBounce, setCartBounce] = useState(false);
   const prevCartCountRef = useRef(cartCount);
 
   const [isLoggedIn, setIsLoggedIn] = useState(
-    Boolean(localStorage.getItem("authToke"))
+    Boolean(localStorage.getItem("authToken"))
   );
 
   const mobileMenuRef = useRef(null);
-
 
   // Sync active tab & close mobile menu on route change
   useEffect(() => {
@@ -45,46 +43,48 @@ const Navbar = () => {
   // Scroll effect
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  //BOUNCE THE CART ITEM WHEN ADD TO CART AN ITEM
+  // Bounce the cart icon when cartCount increases
   useEffect(() => {
-    if(cartCount > prevCartCountRef.current) {
+    if (cartCount > prevCartCountRef.current) {
       setCartBounce(true);
-      const timer = setTimeout(() => setCartBounce(false), 3000)
-      return () => clearTimeout(timer)
+      const timer = setTimeout(() => setCartBounce(false), 800); // shorter bounce
+      // update prev after scheduling cleanup
+      prevCartCountRef.current = cartCount;
+      return () => clearTimeout(timer);
     }
     prevCartCountRef.current = cartCount;
-  }, [cartCount])
+  }, [cartCount]);
 
   // Listen for auth changes
   useEffect(() => {
     const handler = () => {
-      setIsLoggedIn(Boolean(localStorage.getItem('authToken')));
+      setIsLoggedIn(Boolean(localStorage.getItem("authToken")));
     };
-    window.addEventListener('authStateChanged', handler);
-    return () => window.removeEventListener('authStateChanged', handler);
+    window.addEventListener("authStateChanged", handler);
+    return () => window.removeEventListener("authStateChanged", handler);
   }, []);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isOpen && mobileMenuRef.current &&
-        !mobileMenuRef.current.contains(event.target)) {
+      if (
+        isOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-
-
-
 
   // DEFINE LOGOUT FUNCTION
   const handleLogout = () => {
@@ -102,6 +102,7 @@ const Navbar = () => {
     >
       <div className={navbarStyles.borderGradient} />
       <div className={navbarStyles.particlesContainer}></div>
+
       <div>
         <div
           className={`${navbarStyles.particle} w-24 h-24 bg-emerald-500/5 -top-12 left-1/4 ${navbarStyles.floatAnimation}`}
@@ -114,7 +115,7 @@ const Navbar = () => {
         />
       </div>
 
-      {/*Logo */}
+      {/* Logo */}
       <div className={navbarStyles.container}>
         <div className={navbarStyles.innerContainer}>
           <Link to="/" className={navbarStyles.logoLink}>
@@ -134,42 +135,38 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.path}
-                className={`${navbarStyles.navItem}
-            ${
-              activeTab === item.path
-                ? navbarStyles.activeNavItem
-                : navbarStyles.inactiveNavItem
-            }`}
+                className={`${navbarStyles.navItem} ${
+                  activeTab === item.path
+                    ? navbarStyles.activeNavItem
+                    : navbarStyles.inactiveNavItem
+                }`}
               >
                 <div className="flex items-center">
                   <span
-                    className={`${navbarStyles.navIcon}
-                  ${
-                    activeTab === item.path
-                      ? navbarStyles.activeNavIcon
-                      : navbarStyles.inactiveNavIcon
-                  }`}
+                    className={`${navbarStyles.navIcon} ${
+                      activeTab === item.path
+                        ? navbarStyles.activeNavIcon
+                        : navbarStyles.inactiveNavIcon
+                    }`}
                   >
                     {item.icon}
                   </span>
                   <span>{item.name}</span>
                 </div>
                 <div
-                  className={`
-                    ${navbarStyles.navIndicator}
-                    ${
-                      activeTab === item.path
-                        ? navbarStyles.activeIndicator
-                        : navbarStyles.inactiveIndicator
-                    }`}
+                  className={`${navbarStyles.navIndicator} ${
+                    activeTab === item.path
+                      ? navbarStyles.activeIndicator
+                      : navbarStyles.inactiveIndicator
+                  }`}
                 />
               </Link>
             ))}
           </div>
-          {/* MOBILE HAMBURGER */}
+
+          {/* ICONS */}
           <div className={navbarStyles.iconsContainer}>
             {isLoggedIn ? (
-              // Logout button when logged in
               <button
                 onClick={handleLogout}
                 className={navbarStyles.loginLink}
@@ -179,32 +176,32 @@ const Navbar = () => {
                 <span className="ml-1 text-white">Logout</span>
               </button>
             ) : (
-              // Login link when not logged in
               <Link to="/login" className={navbarStyles.loginLink}>
                 <FiUser className={navbarStyles.loginIcon} />
                 <span className="ml-1 text-white">Login</span>
               </Link>
             )}
+
             <Link to="/cart" className={navbarStyles.cartLink}>
               <FaOpencart
-                className={`${navbarStyles.cartIcon} ${
-                  cartBounce ? "animate-bounce" : ""
-                }`}
+                className={`${navbarStyles.cartIcon} ${cartBounce ? "animate-bounce" : ""
+                  }`}
               />
               {cartCount > 0 && (
                 <span className={navbarStyles.cartBadge}>{cartCount}</span>
               )}
             </Link>
 
-            <button onClick={() => setIsOpen(!isOpen)} 
-            className={navbarStyles.hamburgerButton}
-            aria-label={isOpen ? "class-menu" : "open menu"}>
+            <button
+              onClick={() => setIsOpen((v) => !v)}
+              className={navbarStyles.hamburgerButton}
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+            >
               {isOpen ? (
-                <Fi className="h-6 w-6 text-white"/>
+                <FiX className="h-6 w-6 text-white" />
               ) : (
-                <FiMenu className="h-6 w-6 text-white"/>
-              )
-            }
+                <FiMenu className="h-6 w-6 text-white" />
+              )}
             </button>
           </div>
         </div>
@@ -214,33 +211,26 @@ const Navbar = () => {
       <div
         className={`
           ${navbarStyles.mobileOverlay}
-          ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}
+          ${isOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"}
           fixed inset-0 z-40 bg-black bg-opacity-50 transition-opacity duration-300
         `}
         onClick={() => setIsOpen(false)}
       >
         <div
-          // ref={mobileMenuRef}
+          ref={mobileMenuRef}
           className={`
             ${navbarStyles.mobilePanel}
-            ${isOpen ? 'translate-x-0' : 'translate-x-full'}
+            ${isOpen ? "translate-x-0" : "translate-x-full"}
             fixed right-0 top-0 bottom-0 z-50 w-4/5 max-w-sm
           `}
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className={navbarStyles.mobileHeader}>
             <div className={navbarStyles.mobileLogo}>
-              <div className={navbarStyles.mobileLogo}>
-                <img
-                  src={logo}
-                  alt="RushBasket Logo"
-                  className={navbarStyles.mobileLogoImage}
-                />
-                <span className={navbarStyles.mobileLogoText}>RushBasket</span>
-
-              </div>
-
+              <img src={logo} alt="RushBasket Logo" className={navbarStyles.mobileLogoImage} />
+              <span className={navbarStyles.mobileLogoText}>RushBasket</span>
             </div>
+
             <button
               onClick={() => setIsOpen(false)}
               className={navbarStyles.closeButton}
@@ -257,9 +247,9 @@ const Navbar = () => {
                 to={item.path}
                 className={navbarStyles.mobileItem}
                 style={{
-                  transitionDelay: isOpen ? `${idx * 100}ms` : '0ms',
+                  transitionDelay: isOpen ? `${idx * 100}ms` : "0ms",
                   opacity: isOpen ? 1 : 0,
-                  transform: `translateX(${isOpen ? 0 : '20px'})`,
+                  transform: `translateX(${isOpen ? 0 : "20px"})`,
                 }}
                 onClick={() => setIsOpen(false)}
               >
@@ -300,7 +290,5 @@ const Navbar = () => {
     </nav>
   );
 };
-
-
 
 export default Navbar;

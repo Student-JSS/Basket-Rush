@@ -3,7 +3,6 @@ import { bannerStyles } from "../assets/dummyStyles";
 import { FiSearch, FiTruck } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { features } from "../assets/Dummy";
-
 import BannerFood from "../assets/FoodBanner.png";
 
 const BannerHome = ({ onSearch }) => {
@@ -21,9 +20,9 @@ const BannerHome = ({ onSearch }) => {
         const searchWords = trimmedTerm.toLowerCase().split(/\s+/);
         onSearch(searchWords.join(" "));
       } else {
-        navigate("/items?search=${encodedURLComponents(trimmedTerm)}");
+        navigate(`/items?search=${encodedURIComponents(trimmedTerm)}`);
       }
-      setSearchTerm(" ");
+      setSearchTerm("");
     }
   };
 

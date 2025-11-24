@@ -8,6 +8,8 @@ import Items from "./pages/Items";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Logout from "./components/Logout";
+import Cart from "./pages/Cart";
+
 
 
 const ScrollToTop = () => {
@@ -43,7 +45,7 @@ const App = () => {
         <Route
           path="/cart"
           element={
-            isAuthenticated ? <Cart /> : <Navigate replace to="/login" />
+            isAuthenticated ? <Cart /> : <Navigate replace to="/Login" />
           }
         />
 
