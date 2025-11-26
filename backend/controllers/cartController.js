@@ -66,3 +66,51 @@ export const addToCart = async (req , res, next) => {
 }
 
 //PUT METHOD TO UPDATE CART ITEMS
+export const updateCartItem = async (req, res, next) => {
+    try{
+        const { quantity } = req.body;
+        const cartItem = await CartItem.findOne({ _id: req.params.id, user: req.user._id});
+
+        if(!cartItem){
+            throw createError(404, 'Cart item not found')
+        }
+        cartItem.quantity = Math.max(1, quantity);
+        await cartItem.save();
+        await cartItem.populate('product')
+        res.json(201).json({
+            _id: cartItem._id.toString(),
+            product: cartItem.product,
+            quantity: cartItem.quantity
+        })
+    }
+    catch (err){
+        next(err)
+    }
+}
+
+//DELETE METHOD TO DELETE CART ITEM
+export const deleteCartItem = async(req, res,next) => {
+    try{
+        const cartItem = await cartItem.findOne({ _id: req.params.id, user: req.user._id })
+        if(!cartItem){
+            throw createError(404, 'Cart item not found')
+        }
+        await cartItem.deleteOne();
+        res.json({ message: 'Item deleted', _id: req.params.id })
+
+    }
+    catch(err) {
+        next(err)
+    }
+}
+
+//CLEAR CART METHOD
+export const clearCart = async (req, res, next) => {
+    try {
+        await CartItem.deleteMany({ user: req.user._id });
+        res.json({ message: 'Cart cleared'})
+    }
+    catch(err) {
+        next(err)
+    }
+}
