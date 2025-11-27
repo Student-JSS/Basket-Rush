@@ -7,7 +7,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import userRouter from "./routes/userRoute.js";
+import authMiddleware from "./middleware/auth.js";
 import itemRouter from "./routes/productRoute.js";
+import cartRouter from "./routes/cartRoute.js";
 
 
 
@@ -39,6 +41,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // ROUTES
 // ======================
 app.use("/api/user", userRouter);
+app.use('/api/cart', authMiddleware,cartRouter);
 app.use("/api/items", itemRouter);
 
 app.get("/", (req, res) => {
