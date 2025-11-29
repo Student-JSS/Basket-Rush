@@ -1,6 +1,7 @@
 import Order from "../models/orderModel.js";
 import { v4 as uuidv4 } from "uuid";
 import Stripe from "stripe";
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 // CREATE A NEW ORDER
 export const createOrder = async (req, res) => {
@@ -134,6 +135,47 @@ export const getOrderById = async (req, res, next) => {
   }
   catch{
     console.log("GetOrderById Error:", err);
+    next(err);
+  }
+}
+
+//UPDATE ORDERS BY ID
+export const updateOrder = async (req, res, next) => {
+  try {
+    const allowed = ['status', 'paymentStatus', 'deliveryDate', 'notes'];
+    const updateData = {};
+    allowed.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updateData[field] = req.body[field];
+      }
+    });
+    const updated = await Order.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).lean();
+    if(!updated){
+      return res.status(404).json({message: "Order not found"});
+    }
+    res.json(updated);
+  }
+  catch(err){
+    console.log("UpdateOrders Error:", err);
+    next(err);
+  }
+}
+
+//DELETE METHOD TO DELETE ORDERS
+export const deleteOrder = async (req, res, next) => {
+  try {
+    const deleted = await Order.findByIdAndDelete(req.params.id).lean();
+    if(!deleted){
+      return res.status(404).json({message: "Order not found"});
+    }
+    res.json({message: "Order deleted successfully"});
+  }
+  catch(err){
+    console.log("DeleteOrder Error:", err);
     next(err);
   }
 }
