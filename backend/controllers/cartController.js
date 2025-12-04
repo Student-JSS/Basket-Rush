@@ -1,5 +1,6 @@
-import { CartItem } from "../models/cartModel";
-import createError from 'http-errors'
+import { CartItem } from "../models/cartModel.js";
+import createError from 'http-errors';
+
 
 //GET FUNCTION
 export const getCart = async(req, res, next) => {
@@ -29,7 +30,7 @@ export const addToCart = async (req , res, next) => {
         if(!pid || typeof quantity !== 'number'){
             throw createError(400, "Product identifier and quantity are required")
         }
-        let cartItem = await cartItem.findOne({ user: req.user._id, product: pid })
+        let cartItem = await CartItem.findOne({ user: req.user._id, product: pid })
 
         if(cartItem) {
             cartItem.quantity = Math.max(1, cartItem.quantity + quantity)
@@ -91,7 +92,7 @@ export const updateCartItem = async (req, res, next) => {
 //DELETE METHOD TO DELETE CART ITEM
 export const deleteCartItem = async(req, res,next) => {
     try{
-        const cartItem = await cartItem.findOne({ _id: req.params.id, user: req.user._id })
+        const cartItem = await CartItem.findOne({ _id: req.params.id, user: req.user._id })
         if(!cartItem){
             throw createError(404, 'Cart item not found')
         }

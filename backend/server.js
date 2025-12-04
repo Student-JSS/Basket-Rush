@@ -10,6 +10,7 @@ import userRouter from "./routes/userRoute.js";
 import authMiddleware from "./middleware/auth.js";
 import itemRouter from "./routes/productRoute.js";
 import cartRouter from "./routes/cartRoute.js";
+import orderRouter from "./routes/orderRoute.js";
 
 
 
@@ -23,7 +24,18 @@ const __dirname = path.dirname(__filename);
 // ======================
 // MIDDLEWARE
 // ======================
-app.use(cors());
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowedOrigins = ['http://localhost:5173','http://localhost:5174'];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    }
+    else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -42,7 +54,9 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // ======================
 app.use("/api/user", userRouter);
 app.use('/api/cart', authMiddleware,cartRouter);
-app.use("/api/items", itemRouter);
+
+app.use('/api/orders', orderRouter);
+app.use('/api/items', itemRouter);
 
 app.get("/", (req, res) => {
   res.send("API WORKING");
