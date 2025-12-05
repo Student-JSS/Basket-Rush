@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react";
 import { addItemPageStyles as styles } from "../assets/adminStyles";
 import axios from "axios";
+import { FiX, FiUpload, FiSave } from "react-icons/fi";
 
 const initialFormState = {
   name: "",
@@ -19,6 +20,7 @@ const categories = [
   "Meat & Seafood",
   "Bakery",
   "Pantry",
+  "Beverages",
 ];
 
 const AddItemPage = () => {
@@ -44,7 +46,9 @@ const AddItemPage = () => {
     }));
   };
 
-  const removeImage = () => {
+  const removeImage = (e) => {
+    // so clicking the X doesn't reopen the file picker
+    if (e) e.stopPropagation();
     setFormData((f) => ({ ...f, image: null, preview: "" }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -79,7 +83,7 @@ const AddItemPage = () => {
         fileInputRef.current.value = "";
       }
     } catch (err) {
-      console.error("error", err);
+      console.error("error", err.response?.data || err.message);
       alert("Error adding product. Please try again.");
     }
   };
@@ -165,43 +169,47 @@ const AddItemPage = () => {
         {/* IMAGE UPLOAD */}
         <div>
           <label className={styles.label}>Product Image *</label>
-          <div className={styles.imageUploadWrapper}>
-            <div
-              className={styles.imageUploadContainer}
-              onClick={() => fileInputRef.current && fileInputRef.current.click()}
-            >
-              {preview ? (
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept="image/*"
+            onChange={handleImageUpload}
+            className={styles.hiddenInput}
+          />
+
+          <div
+            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+            className={styles.imageUploadContainer}
+          >
+            {preview ? (
+              <div className="relative">
                 <img
                   src={preview}
                   alt="Preview"
-                  className={styles.imagePreview}
+                  className={styles.previewImage}
                 />
-              ) : (
-                <span>Click to upload image</span>
-              )}
-            </div>
-
-            <input
-              type="file"
-              accept="image/*"
-              ref={fileInputRef}
-              onChange={handleImageUpload}
-              style={{ display: "none" }}
-            />
-
-            {preview && (
-              <button
-                type="button"
-                onClick={removeImage}
-                className={styles.removeImageButton}
-              >
-                Remove Image
-              </button>
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className={styles.removeButton}
+                >
+                  <FiX size={16} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <FiUpload className={styles.uploadIcon} />
+                <p className={styles.uploadText}>
+                  Click to upload image (max 5MB)
+                </p>
+              </>
             )}
           </div>
         </div>
 
         <button type="submit" className={styles.submitButton}>
+          <FiSave className="mr-2" />
           Add Product
         </button>
       </form>

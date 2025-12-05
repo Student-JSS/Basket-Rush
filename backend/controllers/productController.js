@@ -3,7 +3,7 @@ import { Product } from '../models/productModel.js'
 //GET FUNCTION TO FETCH PRODUCTS
 export const getProducts = async (req, res, next) => {
     try {
-        const products = (await Product.find()).Sort({ createAt: -1});
+        const products = await Product.find().sort({ createdAt: -1 });
         res.json(products)
     }
     catch (err) {
@@ -15,7 +15,7 @@ export const getProducts = async (req, res, next) => {
 export const createProduct = async (req, res, next) => {
     try {
         const filename = req.file?.filename ?? null;
-        const imageUrl = filename ? '/uploads/${filename}' : null;
+        const imageUrl = filename ? `/uploads/${filename}` : null;
         const { name, description, category , oldPrice, price } = req.body;
 
         const product = await Product.create({
