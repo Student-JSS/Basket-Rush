@@ -93,6 +93,7 @@ const ListItemPage = () => {
             label="Total Products"
             value={items.length}
           />
+          </div>
           {/* Remove or add another card later */}
           <div className={styles.contentContainer}>
             <div className={styles.headerFlex}>
@@ -189,7 +190,7 @@ const ListItemPage = () => {
               </table>
             </div>
             )}
-        </div>
+        
       </div>
     </div>
   )
