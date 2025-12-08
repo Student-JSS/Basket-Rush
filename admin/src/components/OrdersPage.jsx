@@ -1,6 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { ordersPageStyles as styles } from "../assets/adminStyles";
-import { FiCheck, FiPackage, FiTruck, FiUser } from "react-icons/fi";
+import {
+  FiCheck,
+  FiCreditCard,
+  FiEdit,
+  FiMail,
+  FiMapPin,
+  FiPackage,
+  FiPhone,
+  FiTruck,
+  FiUser,
+} from "react-icons/fi";
 import { BsCurrencyRupee } from "react-icons/bs";
 import axios from "axios";
 
@@ -264,7 +274,7 @@ const OrdersPage = () => {
           </div>
         </div>
       </div>
-      
+
       {isDetailModalOpen && selectedOrder && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContainer}>
@@ -295,8 +305,190 @@ const OrdersPage = () => {
                       <FiUser className={styles.modalIcon} />
                       Customer Information
                     </h3>
+                    <div className={styles.modalInfoBox}>
+                      <div className="mb-3">
+                        <div className="font-medium">
+                          {selectedOrder.customer.name}
+                        </div>
+                        <div className="text-gray-600 flex items-center mt-1">
+                          <FiMail className="mr-2 flex shrink-0" />
+                          {selectedOrder.customer.email || "No email provided"}
+                        </div>
+                        <div className="text-gray-600 flex items-center mt-1">
+                          <FiPhone className="mr-2 flex-shrink-0" />
+                          {selectedOrder.customer.phone}
+                        </div>
+                      </div>
+                      <div className="flex items-start mt-3">
+                        <FiMapPin className="text-gray-500 mr-2 mt-1 flex-shrink-0" />
+                        <div className="text-gray-600">
+                          {selectedOrder.customer.address}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ORDERS NOTES */}
+                  {selectedOrder.notes && (
+                    <div className={styles.modalSection}>
+                      <h3 className={styles.modalSectionTitle}>
+                        <FiEdit className={styles.modalIcon} />
+                        Delivery Notes
+                      </h3>
+                      <div className={styles.modalNoteBox}>
+                        <p className="text-gray-700">{selectedOrder.notes}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STATUS CONTROL */}
+                  <div className={styles.modalSection}>
+                    <h3 className={styles.modalSectionTitle}>
+                      Update Order Status
+                    </h3>
+                    <div className={styles.modalStatusControl}>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Order Status
+                        </label>
+                        <select
+                          value={selectedOrder.status}
+                          onChange={(e) => {
+                            const newStatus = e.target.value;
+                            setSelectedOrder({
+                              ...selectedOrder,
+                              status: newStatus,
+                            });
+                            updateOrderStatus(selectedOrder._id, newStatus);
+                          }}
+                          className={styles.modalSelect}
+                        >
+                          {statusOptions
+                            .filter((o) => o !== "All")
+                            .map((option) => (
+                              <option value={option} key={option}>
+                                {option}
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
+
+                {/* RIGHT SIDE */}
+                <div>
+                  <div className={styles.modalSection}>
+                    <h3 className={styles.modalSectionTitle}>
+                      <FiPackage className={styles.modalIcon} />
+                      Order Summary
+                    </h3>
+                    <div className={styles.modalOrderSummary}>
+                      {selectedOrder.items.map((item, index) => (
+                        <div
+                          key={item._id || index}
+                          className={styles.modalOrderItem(
+                            index,
+                            selectedOrder.item.length
+                          )}
+                        >
+                          {item.imageUrl ? (
+                            <img
+                              src={`http://localhost:4000{item.imageUrl}`}
+                              alt={item.name}
+                              className={styles.modalOrderImage}
+                            />
+                          ) : (
+                            <div className={styles.modalPlaceholderImage} />
+                          )}
+
+                          <div className="flex grow">
+                            <div className="font-medium">{item.name}</div>
+                            <div className="text-gray-600">
+                              ${item.price.toFixed(2)} * {item.quantity}
+                            </div>
+                          </div>
+                          <div className="font-medium">
+                            ${item.price * item.quantity.toFixed(2)}
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* ORDER TOTALS */}
+
+                      <div className={styles.modalOrderTotalSection}>
+                        <div className={styles.modalOrderTotalRow}>
+                          <span className="text-gray-600">Subtotal</span>
+                          <span className="font-medium">
+                            ₹{selectedOrder.total.toFixed(2)}
+                          </span>
+                        </div>
+                        <div className={styles.modalOrderTotalRow}>
+                          <span className="text-gray-600">Shipping</span>
+                          <span className="font-medium text-emerald-600">
+                            Free
+                          </span>
+                        </div>
+                        <div className={styles.modalOrderTotalRow}>
+                          <span className="text-gray-600">Tax (5%)</span>
+                          <span className="font-medium">
+                            ₹{(selectedOrder.total * 0.05).toFixed(2)}
+                          </span>
+                        </div>
+                        <div className={styles.modalOrderTotalRowLast}>
+                          <span className="text-lg font-bold">Total</span>
+                          <span className="text-lg font-bold text-emerald-700">
+                            ₹{(selectedOrder.total * 1.05).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* payment info */}
+                  <div>
+                    <h3 className={styles.modalSectionTitle}>
+                      <FiCreditCard className={styles.modalIcon} />
+                      Payment Information
+                    </h3>
+
+                    <div className={styles.modalInfoBox}>
+                      <div className="flex justify-between mb-3">
+                        <span className="text-gray-600">Payment Method</span>
+                        <span className="font-medium">
+                          {selectedOrder.paymentMethod}
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Payment Status</span>
+                        <span
+                          className={styles.paymentBadge(
+                            selectedOrder.paymentStatus
+                          )}
+                        >
+                          {selectedOrder.paymentStatus}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* MODAL FOOTER */}
+            <div className={styles.modalFooter}>
+              <div className="flex justify-end and space-x-3">
+                <button
+                  className={styles.modalFooterButton}
+                  onClick={closeModal}
+                >
+                  Close
+                </button>
+                <button
+                  className={styles.modalFooterPrimaryButton}
+                  onClick={closeModal}
+                >
+                  Save Changes
+                </button>
               </div>
             </div>
           </div>
