@@ -9,6 +9,8 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Logout from "./components/Logout";
 import Cart from "./pages/Cart";
+import MyOrders from "./components/MyOrders";
+import Checkout from "./components/Checkout";
 
 
 
@@ -48,6 +50,8 @@ const App = () => {
             isAuthenticated ? <Cart /> : <Navigate replace to="/Login" />
           }
         />
+        <Route path="/myorders" element={<MyOrders/>}/>
+        <Route path="/checkout" element={<Checkout/>} />
 
         {/* AUTH ROUTES */}
 

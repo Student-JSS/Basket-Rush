@@ -18,6 +18,7 @@ const Signup = () => {
     remember: true,
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   const [showToast, setShowToast] = useState(false);
   const [errors, setErrors] = useState({});
@@ -47,6 +48,9 @@ const Signup = () => {
         [name]: "",
       }));
     }
+    if(apiError){
+      setApiError("");
+    }
   };
 
   //VALIDATION ALL FILES ARE FILED OR NOT
@@ -57,6 +61,7 @@ const Signup = () => {
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       newErrors.email = "Invalid email format";
     if (!formData.password) newErrors.password = "Password is required";
+    if(!formData.remember) newErrors.remember = "You must agree to Terms and Conditions";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -64,16 +69,37 @@ const Signup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validate()) {
-      setShowToast(true);
+    if(!validate()) return;
+    try{
+      const res = await axios.post(
+        'http://localhost:4000/api/user/register',
+        {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        },
+        {headers: {'Content-Type': "application/json"}}
+      );
+      if(res.data.success){
+        setShowToast(true);
+      }
+      else{
+        setApiError(res.data.message || "Registration failed")
+      }
+    }
+    catch(err){
+      if(err.response && err.response.data){
+        setApiError(err.response.data.message);
+      }
+      else{
+        setApiError("Server error");
+      }
     }
   };
 
-  const togglePasswordVisibility = (field) => {
-    setShowPassword((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
+  const togglePasswordVisibility = () => {
+    setShowPassword(v => !v);
+    
   };
 
   return (
@@ -89,6 +115,7 @@ const Signup = () => {
           Account Created Successfully!
         </div>
       )}
+      {apiError && <p className={signupStyles.error}>{apiError}</p>}
 
       {/* SIGNUP CARD */}
       <div className={signupStyles.signupCard}>
